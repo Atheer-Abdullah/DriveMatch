@@ -37,7 +37,7 @@ def contact(request: HttpRequest):
         
             driver_profile = request.user.driverprofile
             user_bookings = Booking.objects.filter(driver=driver_profile).order_by('-created_at')
-        except Exception:
+    except Exception:
             user_bookings = []
 
     form = ContactForm()
