@@ -2,10 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from bookings.models import Booking
 
-
-
 class Complaint(models.Model):
-
     class ComplaintStatus(models.TextChoices):
         NEW = 'new', 'New'
         IN_PROGRESS = 'in_progress', 'In Progress'
@@ -24,9 +21,7 @@ class Complaint(models.Model):
     def __str__(self):
         return f"Complaint #{self.id} — {self.subject} ({self.status})"
 
-
 class Ticket(models.Model):
-
     class TicketStatus(models.TextChoices):
         OPEN = 'open', 'Open'
         IN_PROGRESS = 'in_progress', 'In Progress'
@@ -54,14 +49,11 @@ class Ticket(models.Model):
     category = models.CharField(max_length=30, choices=TicketCategory.choices, default=TicketCategory.OTHER)
     subject = models.CharField(max_length=200)
     description = models.TextField()
-    
     related_id = models.CharField(max_length=50, blank=True)
-    
     attachment = models.FileField(upload_to='documents/tickets/', blank=True, null=True)
     status = models.CharField(max_length=20, choices=TicketStatus.choices, default=TicketStatus.OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     admin_response = models.TextField(blank=True)
 
     def __str__(self):
