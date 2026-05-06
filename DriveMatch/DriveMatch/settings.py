@@ -78,7 +78,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -88,9 +88,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/signin/'
 LOGIN_REDIRECT_URL = '/'
 
-MOYASAR_PUBLISHABLE_KEY = os.environ.get('MOYASAR_PUBLISHABLE_KEY', 'pk_test_EcB5Wk9fUrrXS9m8J6ZHrgLRGSr58dde5UDcZgGR')
+MOYASAR_PUBLISHABLE_KEY = os.environ.get('MOYASAR_PUBLISHABLE_KEY', '')
 MOYASAR_SECRET_KEY = os.environ.get('MOYASAR_SECRET_KEY', '')
-MOYASAR_CALLBACK_URL = os.environ.get('MOYASAR_CALLBACK_URL', 'http://127.0.0.1:8000/payments/callback/')
+MOYASAR_CALLBACK_URL = os.environ.get('MOYASAR_CALLBACK_URL', '')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -98,75 +98,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-ROOT_URLCONF = 'DriveMatch.urls'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'DriveMatch.wsgi.application'
-
-# إعداد قاعدة البيانات لتتعرف على PostgreSQL في Railway تلقائياً
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
-    )
-}
-
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Riyadh'
-USE_I18N = True
-USE_TZ = True
-
-# إعدادات الملفات الثابتة (Static Files)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# إعدادات الميديا
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LOGIN_URL = '/accounts/signin/'
-LOGIN_REDIRECT_URL = '/'
-
-# Moyasar - يفضل وضع الـ Secret Key في متغيرات البيئة بالـ Railway
-MOYASAR_PUBLISHABLE_KEY = os.environ.get('MOYASAR_PUBLISHABLE_KEY', 'pk_test_EcB5Wk9fUrrXS9m8J6ZHrgLRGSr58dde5UDcZgGR')
-MOYASAR_SECRET_KEY = os.environ.get('MOYASAR_SECRET_KEY', 'sk_test_8mW1tzEM7qmrNs**************************')
-MOYASAR_CALLBACK_URL = os.environ.get('MOYASAR_CALLBACK_URL', 'http://127.0.0.1:8000/payments/callback/')
-
-# إعدادات الإيميل
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER', 'Masarmasardriver@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', 'wkkj igai wnev trjr')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
