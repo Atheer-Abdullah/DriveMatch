@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from drivers.models import DriverProfile, DriverRoute, Route, FavoriteDriver
 from bookings.models import Booking
 from accounts.models import PassengerProfile
-
 
 def landing(request):
     if request.user.is_authenticated:
@@ -17,24 +17,20 @@ def landing(request):
             return redirect('main:passenger_home')
     return render(request, 'main/landing.html')
 
-
 def passenger_home(request):
-
     popular_routes = Route.objects.all()[:6]
     top_drivers = DriverRoute.objects.filter(
         driver__verification_status='approved',
         is_active=True
     ).select_related('driver', 'driver__vehicle', 'route').order_by('-driver__average_rating')[:6]
 
-  
     if not request.user.is_authenticated:
         return render(request, 'main/passenger_home.html', {
             'popular_routes': popular_routes,
             'top_drivers': top_drivers,
-            'is_guest': True,  
+            'is_guest': True,
         })
 
-   
     try:
         passenger_profile = request.user.passengerprofile
     except PassengerProfile.DoesNotExist:
@@ -58,34 +54,24 @@ def passenger_home(request):
         'is_guest': False,
     })
 
-
 def contact(request):
     return redirect('support:contact')
-
 
 def terms(request):
     return render(request, 'main/terms.html')
 
-
 def privacy(request):
     return render(request, 'main/privacy.html')
-
 
 def about(request):
     return render(request, 'main/about.html')
 
-
 def careers(request):
     return render(request, 'main/careers.html')
-
-
-from django.contrib.auth.decorators import login_required
-
 
 @login_required(login_url='/accounts/signin/')
 def passenger_more(request):
     return render(request, 'main/passenger_more.html')
-
 
 @login_required(login_url='/accounts/signin/')
 def passenger_messages_redirect(request):
