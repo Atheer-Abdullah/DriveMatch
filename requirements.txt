@@ -1,5 +1,7 @@
 adafruit-ampy==1.1.0
 gunicorn
+dj-database-url
+whitenoise
 aio-service-client==0.7.2
 aiohappyeyeballs==2.6.1
 aiohttp==3.11.16
