@@ -1,1 +1,1 @@
-web: gunicorn DriveMatch.wsgi
+web: python manage.py migrate && gunicorn DriveMatch.wsgi
