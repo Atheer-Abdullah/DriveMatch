@@ -12,64 +12,47 @@ from .forms import (
     PassengerRegistrationForm, PassengerProfileUpdateForm,
     SignInForm, ForgotPasswordForm, VerifyResetCodeForm, ResetPasswordForm
 )
-
-
-
-from .utils import create_otp  
-
+from .utils import create_otp, verify_otp
 
 def passenger_register(request: HttpRequest):
-    
     form = PassengerRegistrationForm()
 
     if request.method == 'POST':
         form = PassengerRegistrationForm(request.POST)
         if form.is_valid():
-
-            
             request.session['pending_registration'] = {
                 'email': form.cleaned_data['email'],
                 'password': form.cleaned_data['password'],
                 'full_name': form.cleaned_data['full_name'],
                 'phone_number': form.cleaned_data['phone_number'],
             }
-
-            
             create_otp(
                 email=form.cleaned_data['email'],
                 purpose='registration'
             )
-
             messages.success(
                 request,
                 'Verification code sent to your email.',
                 'alert-success'
             )
-
             return redirect('accounts:verify_registration_otp')
 
     return render(request, 'accounts/passenger_register.html', {'form': form})
 
-
 def sign_in(request: HttpRequest):
-    
     form = SignInForm()
 
     if request.method == 'POST':
         form = SignInForm(request.POST)
         if form.is_valid():
-            
             email = form.cleaned_data['email'].strip().lower()
             password = form.cleaned_data['password']
 
-            
             user_obj = User.objects.filter(email__iexact=email).first()
             if user_obj is None:
-                
                 user_obj = User.objects.filter(username__iexact=email).first()
 
             if user_obj:
-             
                 user = authenticate(request, username=user_obj.username, password=password)
             else:
                 user = None
@@ -99,26 +82,18 @@ def sign_in(request: HttpRequest):
 
     return render(request, 'accounts/signin.html', {'form': form})
 
-
-
 def sign_out(request: HttpRequest):
     logout(request)
     messages.success(request, 'You have been signed out.', 'alert-warning')
     return redirect('main:landing')
 
-
-
-
 def forgot_password(request: HttpRequest):
-    
     form = ForgotPasswordForm()
 
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']   
-
-            
+            email = form.cleaned_data['email']
             user_obj = User.objects.filter(email__iexact=email).first()
             if user_obj is None:
                 user_obj = User.objects.filter(username__iexact=email).first()
@@ -130,15 +105,10 @@ def forgot_password(request: HttpRequest):
                     'alert-danger'
                 )
             else:
-                
                 code = str(random.randint(100000, 999999))
-
-                
                 request.session['reset_email'] = user_obj.email
                 request.session['reset_code'] = code
                 request.session['reset_verified'] = False
-
-                
                 messages.success(
                     request,
                     f'Verification code for testing: {code}',
@@ -148,12 +118,7 @@ def forgot_password(request: HttpRequest):
 
     return render(request, 'accounts/forgot_password.html', {'form': form})
 
-
-
-
 def verify_reset_code(request: HttpRequest):
-    
-    
     if not request.session.get('reset_code'):
         messages.error(request, 'Please start from the forgot password page.', 'alert-danger')
         return redirect('accounts:forgot_password')
@@ -173,19 +138,13 @@ def verify_reset_code(request: HttpRequest):
             else:
                 messages.error(request, 'Invalid verification code. Please try again.', 'alert-danger')
 
-
     reset_email = request.session.get('reset_email', '')
     return render(request, 'accounts/verify_reset_code.html', {
         'form': form,
         'reset_email': reset_email,
     })
 
-
-
-
 def reset_password(request: HttpRequest):
-    
-    
     if not request.session.get('reset_verified'):
         messages.error(request, 'Please verify your code first.', 'alert-danger')
         return redirect('accounts:forgot_password')
@@ -203,11 +162,9 @@ def reset_password(request: HttpRequest):
                 user_obj = User.objects.filter(username__iexact=reset_email).first()
 
             if user_obj:
-       
                 user_obj.set_password(new_password)
                 user_obj.save()
 
-     
                 for key in ['reset_email', 'reset_code', 'reset_verified']:
                     request.session.pop(key, None)
 
@@ -226,12 +183,8 @@ def reset_password(request: HttpRequest):
         'reset_email': reset_email,
     })
 
-
-
 def forgot_username(request: HttpRequest):
     return render(request, 'accounts/forgot_username.html')
-
-
 
 @login_required(login_url='/accounts/signin/')
 def passenger_profile(request: HttpRequest):
@@ -259,14 +212,9 @@ def passenger_profile(request: HttpRequest):
                 return redirect('accounts:passenger_profile')
             except Exception as e:
                 messages.error(request, 'Could not update profile.', 'alert-danger')
-                print(f"[Profile Update Error] {e}")
-
     return render(request, 'accounts/passenger_profile.html', {'form': form, 'profile': profile})
 
-
-
 def _send_otp_email(new_email, otp_code):
-    
     from django.core.mail import send_mail
     from django.conf import settings
     try:
@@ -283,14 +231,11 @@ def _send_otp_email(new_email, otp_code):
         )
         return True, None
     except Exception as e:
-        
         print(f"\n[DEV] OTP for {new_email}: {otp_code}\n")
         return False, str(e)
 
-
 @login_required(login_url='/accounts/signin/')
 def request_email_change(request: HttpRequest):
-    
     if request.method != 'POST':
         return redirect('accounts:passenger_profile')
 
@@ -300,7 +245,6 @@ def request_email_change(request: HttpRequest):
         messages.error(request, 'Please enter a new email address.', 'alert-danger')
         return redirect('accounts:passenger_profile')
 
-    
     from django.core.validators import validate_email
     from django.core.exceptions import ValidationError
     try:
@@ -309,7 +253,6 @@ def request_email_change(request: HttpRequest):
         messages.error(request, 'Please enter a valid email address.', 'alert-danger')
         return redirect('accounts:passenger_profile')
 
-    
     if User.objects.filter(email__iexact=new_email).exclude(pk=request.user.pk).exists():
         messages.error(
             request,
@@ -318,7 +261,6 @@ def request_email_change(request: HttpRequest):
         )
         return redirect('accounts:passenger_profile')
 
-    
     import random
     otp = str(random.randint(100000, 999999))
     request.session['email_change_otp'] = otp
@@ -333,7 +275,6 @@ def request_email_change(request: HttpRequest):
             'alert-success'
         )
     else:
-        
         messages.success(
             request,
             f'[Development Mode] Email could not be sent (no SMTP configured). '
@@ -343,10 +284,8 @@ def request_email_change(request: HttpRequest):
 
     return redirect('accounts:verify_email_otp')
 
-
 @login_required(login_url='/accounts/signin/')
 def verify_email_otp(request: HttpRequest):
-    
     stored_otp = request.session.get('email_change_otp')
     new_email = request.session.get('email_change_target')
 
@@ -372,14 +311,12 @@ def verify_email_otp(request: HttpRequest):
                 )
             return redirect('accounts:verify_email_otp')
 
-
         entered_code = request.POST.get('otp_code', '').strip()
         if entered_code == stored_otp:
-            
             try:
                 with transaction.atomic():
                     request.user.email = new_email
-                    request.user.username = new_email   
+                    request.user.username = new_email
                     request.user.save()
                     try:
                         request.user.passengerprofile.is_email_verified = True
@@ -397,16 +334,12 @@ def verify_email_otp(request: HttpRequest):
                 return redirect('accounts:passenger_profile')
             except Exception as e:
                 messages.error(request, 'Could not update email. Please try again.', 'alert-danger')
-                print(f"[Email Change Error] {e}")
         else:
             messages.error(request, 'Invalid verification code. Please try again.', 'alert-danger')
 
     return render(request, 'accounts/verify_email_otp.html', {
         'new_email': new_email,
     })
-
-from .utils import verify_otp
-
 
 def verify_registration_otp(request: HttpRequest):
     data = request.session.get('pending_registration')
@@ -418,23 +351,19 @@ def verify_registration_otp(request: HttpRequest):
     if request.method == 'POST':
         action = request.POST.get('action', 'verify')
 
-        
         if action == 'resend':
             create_otp(
                 email=data['email'],
                 purpose='registration'
             )
-
             messages.success(request, 'A new verification code has been sent.', 'alert-success')
             return redirect('accounts:verify_registration_otp')
 
-        
         code = request.POST.get('otp_code', '').strip()
 
         if verify_otp(data['email'], code, 'registration'):
             try:
                 with transaction.atomic():
-
                     full_name = data['full_name'].strip()
                     name_parts = full_name.split(' ', 1)
                     first_name = name_parts[0]
@@ -465,11 +394,9 @@ def verify_registration_otp(request: HttpRequest):
 
             except Exception as e:
                 messages.error(request, 'Error creating account.', 'alert-danger')
-                print(f"[OTP Create Error] {e}")
-
         else:
             messages.error(request, 'Invalid or expired code.', 'alert-danger')
 
     return render(request, 'accounts/verify_email_otp.html', {
-    'new_email': data['email']
-})
+        'new_email': data['email']
+    })
