@@ -2,11 +2,6 @@ from django.core.management.base import BaseCommand
 from drivers.models import SubscriptionPlan, Route
 
 
-# ─────────────────────────────────────────────
-# RAW NEIGHBORHOOD LIST
-# Includes alternate English spellings for broader UI coverage.
-# Exact duplicates are removed automatically below.
-# ─────────────────────────────────────────────
 
 RAW_NEIGHBORHOODS = [
     "Al Olaya", "Al Sulimaniyah", "Al Murabba", "Al Malaz", "Al Wizarat",
@@ -37,7 +32,7 @@ RAW_NEIGHBORHOODS = [
     "Imam Muhammad ibn Saud University", "King Saud University",
     "Riyadh Front", "Diriyah", "Irqah", "Al Ghadir", "Al Khair",
     "Al Awali", "Al Hair",
-    # Alternate spellings
+
     "Al Ared", "Al Aarid", "Al Yasmin", "Al Yasmeen", "Al Qairawan",
     "Al Qayrawan", "Al Sahafa", "Al Rabi", "Al Nafel", "Al Nuzha",
     "Al Izdehar", "Al Muruj",
@@ -51,10 +46,7 @@ RAW_NEIGHBORHOODS = [
 
 
 def deduplicate(names):
-    """
-    Remove exact duplicates while preserving order.
-    Also strips whitespace and skips empty names.
-    """
+    
     seen = set()
     result = []
     for name in names:
@@ -76,7 +68,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE('  DriveMatch Seed Data'))
         self.stdout.write(self.style.NOTICE('─' * 50))
 
-        # ── SUBSCRIPTION PLANS ────────────────────────────
+        
         self.stdout.write('\nSeeding subscription plans...')
 
         plans_data = [
@@ -118,7 +110,7 @@ class Command(BaseCommand):
                 name=name,
                 defaults=plan_data
             )
-            plan_data['name'] = name   # restore for any future use
+            plan_data['name'] = name   
             if created:
                 plans_created += 1
             else:
@@ -128,7 +120,7 @@ class Command(BaseCommand):
             f'  Plans created: {plans_created}, updated/already existed: {plans_updated}'
         )
 
-        # ── RIYADH ROUTES ─────────────────────────────────
+        
         self.stdout.write('\nSeeding Riyadh routes...')
 
         neighborhoods = deduplicate(RAW_NEIGHBORHOODS)
