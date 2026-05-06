@@ -11,22 +11,14 @@ from .forms import TicketForm, ComplaintForm, ContactForm
 from bookings.models import Booking
 from accounts.models import PassengerProfile
 
-
 def _get_ticket_number():
     year = timezone.now().year
     last = Ticket.objects.order_by('-id').first()
     next_id = (last.id + 1) if last else 1
     return f"TCK-{year}-{str(next_id).zfill(4)}"
 
-
-
 @login_required(login_url='/accounts/signin/')
 def contact(request: HttpRequest):
-    """
-    Contact page — requires login.
-    Creates a Ticket. If category requires a booking, booking_id is required.
-    """
-    
     user_bookings = []
     BOOKING_REQUIRED_SUBJECTS = ('booking', 'payment', 'driver', 'contract', 'dispute')
 
@@ -34,11 +26,13 @@ def contact(request: HttpRequest):
         passenger_profile = request.user.passengerprofile
         user_bookings = Booking.objects.filter(passenger=passenger_profile).order_by('-created_at')
     except PassengerProfile.DoesNotExist:
-        
+        try:
             driver_profile = request.user.driverprofile
             user_bookings = Booking.objects.filter(driver=driver_profile).order_by('-created_at')
-    except Exception:
+        except Exception:
             user_bookings = []
+    except Exception:
+        user_bookings = []
 
     form = ContactForm()
 
@@ -48,7 +42,6 @@ def contact(request: HttpRequest):
             subject_val = form.cleaned_data['subject']
             related_booking_id = request.POST.get('related_booking_id', '').strip()
 
-    
             if subject_val in BOOKING_REQUIRED_SUBJECTS and not related_booking_id:
                 messages.error(
                     request,
@@ -82,9 +75,6 @@ def contact(request: HttpRequest):
         'booking_required_subjects': list(BOOKING_REQUIRED_SUBJECTS),
     })
 
-
-
-
 @login_required(login_url='/accounts/signin/')
 def tickets(request: HttpRequest):
     all_tickets = Ticket.objects.filter(submitted_by=request.user).order_by('-created_at')
@@ -112,9 +102,6 @@ def tickets(request: HttpRequest):
         'type_choices': Ticket.TicketType.choices,
     })
 
-
-
-
 @login_required(login_url='/accounts/signin/')
 def create_ticket(request: HttpRequest):
     form = TicketForm()
@@ -137,9 +124,6 @@ def create_ticket(request: HttpRequest):
             messages.error(request, 'Please correct the errors below.', 'alert-danger')
 
     return render(request, 'support/ticket_form.html', {'form': form})
-
-
-
 
 @login_required(login_url='/accounts/signin/')
 def create_complaint(request: HttpRequest, booking_id: int):
