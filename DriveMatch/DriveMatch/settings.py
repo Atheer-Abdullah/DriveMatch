@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-drivematch-static-key-for-dev')
 
 # اجعل DEBUG = False في الإنتاج تلقائياً
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'True') == 'False'
 
 # السماح برابط Railway وأيضاً الجهاز المحلي
 ALLOWED_HOSTS = ['*'] # يمكنك استبداله برابط Railway الخاص بك لاحقاً للأمان
