@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn DriveMatch.wsgi
+web: gunicorn DriveMatch.wsgi:application --bind 0.0.0.0:8000
