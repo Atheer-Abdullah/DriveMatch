@@ -1,1 +1,1 @@
-web: gunicorn DriveMatch.wsgi
+web: gunicorn DriveMatch.wsgi:application
